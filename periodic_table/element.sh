@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Periodic Table Database Query Script
+# Usage: ./element.sh <atomic_number|symbol|name>
 # Queries PostgreSQL database for element information by atomic number, symbol, or name
 # Usage: ./element.sh <atomic_number|symbol|name>
 
