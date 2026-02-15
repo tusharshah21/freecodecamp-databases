@@ -9,7 +9,12 @@ PSQL="psql --username=freecodecamp --dbname=number_guess -t --no-align -c"
 # Function to execute database queries
 function query_db() {
   local query="$1"
-  $PSQL "$query" 2>/dev/null
+  local result=$($PSQL "$query" 2>/dev/null)
+  if [ $? -ne 0 ]; then
+    echo "Error: Unable to connect to database" >&2
+    exit 1
+  fi
+  echo "$result"
 }
 
 # Generate a random number between 1 and 1000
