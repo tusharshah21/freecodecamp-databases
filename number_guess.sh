@@ -53,6 +53,12 @@ while true; do
     continue
   fi
   
+  # Validate guess is within the valid range
+  if [[ $GUESS -lt 1 ]] || [[ $GUESS -gt 1000 ]]; then
+    echo "That is not an integer, guess again:"
+    continue
+  fi
+  
   ((NUMBER_OF_GUESSES++))
   
   # Compare guess with secret number
