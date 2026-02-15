@@ -2,6 +2,12 @@
 
 PSQL="psql --username=freecodecamp --dbname=number_guess -t --no-align -c"
 
+# Function to execute database queries
+function query_db() {
+  local query="$1"
+  $PSQL "$query" 2>/dev/null
+}
+
 # Generate a random number between 1 and 1000
 SECRET_NUMBER=$((RANDOM % 1000 + 1))
 
@@ -13,13 +19,13 @@ echo "Enter your username:"
 read USERNAME
 
 # Check if username exists in database
-USER_DATA=$($PSQL "SELECT games_played, best_game FROM users WHERE username = '$USERNAME';")
+USER_DATA=$(query_db "SELECT games_played, best_game FROM users WHERE username = '$USERNAME';")
 
 if [[ -z $USER_DATA ]]; then
   # New user
   echo "Welcome, $USERNAME! It looks like this is your first time here."
   # Insert new user into database
-  $PSQL "INSERT INTO users(username, games_played, best_game) VALUES('$USERNAME', 0, NULL);" > /dev/null
+  query_db "INSERT INTO users(username, games_played, best_game) VALUES('$USERNAME', 0, NULL);" > /dev/null
 else
   # Returning user
   IFS="|" read GAMES_PLAYED BEST_GAME <<< "$USER_DATA"
@@ -51,7 +57,7 @@ while true; do
     
     # Update database
     # Get current best game for this user
-    CURRENT_BEST=$($PSQL "SELECT best_game FROM users WHERE username = '$USERNAME';")
+    CURRENT_BEST=$(query_db "SELECT best_game FROM users WHERE username = '$USERNAME';")
     
     # Update the user's game statistics
     if [[ -z $CURRENT_BEST || $CURRENT_BEST == "NULL" || $NUMBER_OF_GUESSES -lt $CURRENT_BEST ]]; then
@@ -60,10 +66,10 @@ while true; do
       NEW_BEST=$CURRENT_BEST
     fi
     
-    NEW_GAMES=$($PSQL "SELECT games_played FROM users WHERE username = '$USERNAME';" | cut -d'|' -f1)
+    NEW_GAMES=$(query_db "SELECT games_played FROM users WHERE username = '$USERNAME';" | cut -d'|' -f1)
     ((NEW_GAMES++))
     
-    $PSQL "UPDATE users SET games_played = $NEW_GAMES, best_game = $NEW_BEST WHERE username = '$USERNAME';" > /dev/null
+    query_db "UPDATE users SET games_played = $NEW_GAMES, best_game = $NEW_BEST WHERE username = '$USERNAME';" > /dev/null
     
     break
   fi
